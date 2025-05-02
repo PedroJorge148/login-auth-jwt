@@ -32,9 +32,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // ponto-chave: configurar tratamento de exceções
                 .exceptionHandling(ex -> ex
-                        // quando a autenticação falhar, use nosso entry point
+                        // quando a autenticação falhar, usa entry point
                         .authenticationEntryPoint(authenticationEntryPoint)
-                        // opcional: trate AccessDenied (usuário autenticado mas sem permissão) também como 401
+                        // opcional: tratar AccessDenied (usuário autenticado mas sem permissão) também como 401
                         .accessDeniedHandler((req, res, accessDeniedException) ->
                                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: Access is denied")))
                 .authorizeHttpRequests(authorize -> authorize
