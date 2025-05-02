@@ -1,5 +1,6 @@
 package com.pjor.login_auth_jwt.infra.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,12 +22,21 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
     @Autowired
     SecurityFilter securityFilter;
+    @Autowired
+    private JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // ponto-chave: configurar tratamento de exceções
+                .exceptionHandling(ex -> ex
+                        // quando a autenticação falhar, use nosso entry point
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        // opcional: trate AccessDenied (usuário autenticado mas sem permissão) também como 401
+                        .accessDeniedHandler((req, res, accessDeniedException) ->
+                                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: Access is denied")))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
